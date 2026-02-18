@@ -17,7 +17,17 @@ st.set_page_config(
 from lib.theme import CUSTOM_CSS, ACCENT1
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
-# ── Page imports ──────────────────────────────────────────────
+# ── Page imports (reload to bust .pyc cache on Streamlit Cloud) ─
+import importlib
+import pages.exec_summary, pages.market_uptake, pages.regional_view, pages.feedback_overview
+import lib.feedback_ui, lib.feedback_db, lib.theme
+importlib.reload(lib.theme)
+importlib.reload(lib.feedback_db)
+importlib.reload(lib.feedback_ui)
+importlib.reload(pages.exec_summary)
+importlib.reload(pages.market_uptake)
+importlib.reload(pages.regional_view)
+importlib.reload(pages.feedback_overview)
 from pages.exec_summary import show as exec_show
 from pages.market_uptake import show as uptake_show
 from pages.regional_view import show as regional_show
