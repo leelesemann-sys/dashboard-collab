@@ -1,35 +1,37 @@
 # Dashboard Collab
 
-Zwei Varianten eines iterativen Dashboard-Prototyping-Tools mit integriertem Feedback-System.
-Zum direkten Vergleich: **Streamlit (Python)** vs. **React/Vite (JSX)**.
+> **Language:** English | [Deutsch](README.de.md)
 
-## Zweck
+Two variants of an iterative dashboard prototyping tool with built-in feedback collection.
+Side-by-side comparison: **Streamlit (Python)** vs. **React/Vite (JSX)**.
 
-Wenn cross-funktionale Teams gemeinsam Dashboards entwickeln:
+## Purpose
+
+For cross-functional teams developing dashboards collaboratively:
 
 ```
-Runde 1: Prototyp  ->  Feedback  ->  Anpassen
-Runde 2: Prototyp v2  ->  Feedback  ->  Anpassen
+Round 1: Prototype  ->  Feedback  ->  Adjust
+Round 2: Prototype v2  ->  Feedback  ->  Adjust
 ...
-Final: Konsens  ->  Umsetzung in Power BI
+Final: Consensus  ->  Build in Power BI
 ```
 
-## Live-Demos
+## Live Demos
 
-| Variante | URL |
+| Variant | URL |
 |---|---|
 | **React** | [dashboard-collab.vercel.app](https://dashboard-collab.vercel.app) |
-| **Streamlit** | [Streamlit Cloud](https://dashboard-collab.streamlit.app) |
+| **Streamlit** | [dashboard-collab.streamlit.app](https://dashboard-collab.streamlit.app) |
 
-## Architektur
+## Architecture
 
-Beide Varianten schreiben in dasselbe **Google Sheet** als zentrale Datenbank.
-So sehen alle Tester (10-20 Personen) dasselbe Feedback, egal welche Variante sie nutzen.
+Both variants write to the same **Google Sheet** as a shared database.
+All testers (10-20 people) see the same feedback regardless of which variant they use.
 
 ```
 React (Vercel)                    Google Apps Script         Google Sheet
 +----------------+    POST/JSON  +------------------+       +-----------------+
-| feedbackStore  |-------------->| doPost(e)        |------>| "feedback" Tab  |
+| feedbackStore  |-------------->| doPost(e)        |------>| "feedback" tab  |
 | .js            |               | doGet(e)         |<------| id, page_id,    |
 |                |<--------------|                  |       | element_id, ... |
 +----------------+   JSON resp.  +------------------+       +-----------------+
@@ -40,41 +42,41 @@ Streamlit (Cloud)                                                  |
 +----------------+
 ```
 
-### Feedback-Flow
+### Feedback Flow
 
-1. **Tester** oeffnet React- oder Streamlit-App
-2. Gibt Feedback ein (pro Seite oder pro Chart-Element)
-3. Klickt "Absenden"
-4. Feedback wird **sofort** im Google Sheet gespeichert
-5. Alle anderen Tester sehen es beim naechsten Laden
-6. Admin kann Feedback in der Uebersicht filtern, Status aendern, exportieren
+1. **Tester** opens React or Streamlit app
+2. Enters feedback (per page or per chart element)
+3. Clicks "Submit"
+4. Feedback is **instantly** saved to the Google Sheet
+5. All other testers see it on next load
+6. Admin can filter, change status, and export feedback
 
-### Hybrid-Feedback
+### Hybrid Feedback
 
-Feedback kann auf zwei Ebenen abgegeben werden:
+Feedback can be submitted at two levels:
 
-- **Seiten-Level**: Allgemeines Feedback zur ganzen Seite (Formular am Seitenende)
-- **Element-Level**: Feedback zu einzelnen Charts/Tabellen (Popover-Button am Chart)
+- **Page-level**: General feedback for the entire page (form at page bottom)
+- **Element-level**: Feedback for individual charts/tables (popover button on each chart)
 
-Element-IDs: `trx-chart`, `revenue-chart`, `nrx-rrx-chart`, `market-share-chart`, `region-chart`, `region-table`
+Element IDs: `trx-chart`, `revenue-chart`, `nrx-rrx-chart`, `market-share-chart`, `region-chart`, `region-table`
 
 ## Quick Start
 
-### Streamlit-Variante
+### Streamlit Variant
 
 ```bash
 cd streamlit
 pip install -r requirements.txt
-# Secrets konfigurieren (siehe Setup)
+# Configure secrets (see Setup below)
 streamlit run app.py
 ```
 
-### React-Variante
+### React Variant
 
 ```bash
 cd react
 npm install
-# Optional: .env.local mit VITE_APPS_SCRIPT_URL (siehe Setup)
+# Optional: create .env.local with VITE_APPS_SCRIPT_URL (see Setup below)
 npm run dev
 ```
 
@@ -82,75 +84,75 @@ npm run dev
 
 ### 1. Google Sheet
 
-- Neues Sheet anlegen, Tab umbenennen zu `feedback`
-- Header-Zeile (A-J): `id | page_id | element_id | round | author | comment | rating | status | created_at | source`
+- Create a new Google Sheet, rename the tab to `feedback`
+- Header row (A-J): `id | page_id | element_id | round | author | comment | rating | status | created_at | source`
 
-### 2. Service Account (fuer Streamlit)
+### 2. Service Account (for Streamlit)
 
-- [Google Cloud Console](https://console.cloud.google.com) -> IAM & Admin -> Dienstkonten -> Erstellen
-- Google Sheets API aktivieren
-- JSON-Key herunterladen
-- Service Account Email als Editor im Sheet einladen
+- [Google Cloud Console](https://console.cloud.google.com) -> IAM & Admin -> Service Accounts -> Create
+- Enable the Google Sheets API
+- Download the JSON key
+- Invite the service account email as Editor on the Sheet
 
-### 3. Apps Script (fuer React)
+### 3. Apps Script (for React)
 
-- Im Google Sheet: Erweiterungen -> Apps Script
-- Code aus `docs/apps-script.js` einfuegen
-- Deploy -> Neue Bereitstellung -> Web-App -> "Ausfuehren als: Ich", Zugriff: "Jeder"
-- URL kopieren
+- In Google Sheet: Extensions -> Apps Script
+- Paste the code from `docs/apps-script.js`
+- Deploy -> New Deployment -> Web App -> "Execute as: Me", Access: "Anyone"
+- Copy the URL
 
-### 4. Secrets konfigurieren
+### 4. Configure Secrets
 
-**Streamlit (lokal):** `.streamlit/secrets.toml` aus `.streamlit/secrets.toml.example` erstellen
+**Streamlit (local):** Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` and fill in values
 
-**Streamlit Cloud:** Settings -> Secrets -> TOML-Inhalt einfuegen
+**Streamlit Cloud:** Settings -> Secrets -> paste the TOML content
 
 **React/Vercel:** Environment Variable `VITE_APPS_SCRIPT_URL` = Apps Script URL
 
-## Vergleich
+## Comparison
 
-| Kriterium | Streamlit | React |
+| Criterion | Streamlit | React |
 |---|---|---|
-| **Sprache** | Python | JavaScript/JSX |
+| **Language** | Python | JavaScript/JSX |
 | **Charts** | Plotly | Recharts |
-| **Feedback-Backend** | Google Sheets (gspread) | Google Sheets (Apps Script) |
-| **Neues Chart** | ~5-10 Zeilen | ~30-50 Zeilen |
-| **Neuer Filter** | 1 Zeile (`st.slider`) | State + Handler + JSX |
-| **Look & Feel** | Premium CSS, nah an React | Pixel-perfekt, volle Kontrolle |
+| **Feedback Backend** | Google Sheets (gspread) | Google Sheets (Apps Script) |
+| **New chart** | ~5-10 lines | ~30-50 lines |
+| **New filter** | 1 line (`st.slider`) | State + handler + JSX |
+| **Look & Feel** | Premium CSS, close to React | Pixel-perfect, full control |
 | **Deploy** | Streamlit Cloud | Vercel |
 
-## Features (beide Varianten)
+## Features (both variants)
 
-- 3 Dashboard-Seiten: Executive Summary, Markt-Uptake, Regionale Performance
-- Hybrid-Feedback: pro Seite + pro Chart-Element (Popover)
-- Runden-System (Runde 1, 2, 3...)
-- Feedback-Historie mit Status (offen/erledigt)
-- Admin-Seite mit Filtern (Runde, Seite, Element, Status) und Export (CSV/Excel)
-- Geteilte Mock-Daten (Pharma-Launch: Cardiozan)
-- Google Sheets als persistentes, multi-user Backend
+- 3 dashboard pages: Executive Summary, Market Uptake, Regional Performance
+- Hybrid feedback: per page + per chart element (popover)
+- Round system (Round 1, 2, 3...)
+- Feedback history with status (open/resolved)
+- Admin page with filters (round, page, element, status) and export (CSV/Excel)
+- Shared mock data (pharma launch: Cardiozan)
+- Google Sheets as persistent, multi-user backend
 
-## Projektstruktur
+## Project Structure
 
 ```
 dashboard-collab/
-  shared/mock-data.json           # Geteilte Pharma-Beispieldaten
-  docs/apps-script.js             # Google Apps Script Code (fuer React)
-  react/                          # React/Vite Variante
-    src/App.jsx                   # Haupt-Shell mit Sync
-    src/config.js                 # Apps Script URL Config
-    src/feedbackStore.js          # Google Sheets + localStorage Fallback
+  shared/mock-data.json           # Shared pharma mock data
+  docs/apps-script.js             # Google Apps Script code (for React)
+  react/                          # React/Vite variant
+    src/App.jsx                   # Main shell with sync
+    src/config.js                 # Apps Script URL config
+    src/feedbackStore.js          # Google Sheets + localStorage fallback
     src/components/               # KPI, Card, FeedbackBubble, ...
-    src/pages/                    # 4 Seiten
-  streamlit/                      # Streamlit Variante
-    app.py                        # Entry mit st.navigation()
+    src/pages/                    # 4 pages
+  streamlit/                      # Streamlit variant
+    app.py                        # Entry with st.navigation()
     lib/feedback_db.py            # Google Sheets CRUD (gspread)
-    lib/feedback_ui.py            # Element- + Seiten-Feedback UI
-    lib/theme.py                  # Premium CSS + KPI Cards
-    pages/                        # 4 Seiten
-    .streamlit/config.toml        # Theme-Farben
-    .streamlit/secrets.toml.example  # Secrets-Template
+    lib/feedback_ui.py            # Element + page feedback UI
+    lib/theme.py                  # Premium CSS + KPI cards
+    pages/                        # 4 pages
+    .streamlit/config.toml        # Theme colors
+    .streamlit/secrets.toml.example  # Secrets template
 ```
 
-## Lizenz
+## License
 
 MIT
