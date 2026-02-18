@@ -17,18 +17,25 @@ const nextId = () => Date.now().toString(36) + Math.random().toString(36).slice(
 
 // ── CRUD ─────────────────────────────────────────────────────
 
-export function getFeedback(pageId, round) {
+export function getFeedback(pageId, round, elementId) {
   let data = load();
   if (pageId) data = data.filter((d) => d.page_id === pageId);
   if (round) data = data.filter((d) => d.round === round);
+  if (elementId !== undefined) data = data.filter((d) => (d.element_id || null) === (elementId || null));
   return data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 }
 
-export function addFeedback({ pageId, round, author, comment, rating }) {
+export function getElementCount(pageId, elementId) {
+  const data = load();
+  return data.filter((d) => d.page_id === pageId && d.element_id === elementId).length;
+}
+
+export function addFeedback({ pageId, round, author, comment, rating, elementId }) {
   const data = load();
   data.push({
     id: nextId(),
     page_id: pageId,
+    element_id: elementId || null,
     round,
     author,
     comment,
@@ -59,6 +66,11 @@ export function getAllPageIds() {
   return [...new Set(data.map((d) => d.page_id))];
 }
 
+export function getAllElementIds() {
+  const data = load();
+  return [...new Set(data.filter((d) => d.element_id).map((d) => d.element_id))];
+}
+
 // ── Export ────────────────────────────────────────────────────
 
 function downloadBlob(content, filename, type) {
@@ -73,11 +85,11 @@ function downloadBlob(content, filename, type) {
 
 export function exportCSV() {
   const rows = load();
-  const header = "id,page_id,round,author,comment,rating,status,created_at\n";
+  const header = "id,page_id,element_id,round,author,comment,rating,status,created_at\n";
   const csv = rows
     .map(
       (r) =>
-        `${r.id},${r.page_id},${r.round},"${r.author}","${r.comment.replace(/"/g, '""')}",${r.rating},${r.status},${r.created_at}`
+        `${r.id},${r.page_id},${r.element_id || ""},${r.round},"${r.author}","${r.comment.replace(/"/g, '""')}",${r.rating},${r.status},${r.created_at}`
     )
     .join("\n");
   downloadBlob(header + csv, "feedback.csv", "text/csv");

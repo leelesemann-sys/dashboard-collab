@@ -39,7 +39,7 @@ def show():
         <div class="section-title">Filter & Export</div>
     """, unsafe_allow_html=True)
 
-    fc1, fc2, fc3, fc4 = st.columns([1, 1, 1, 2])
+    fc1, fc2, fc3, fc4, fc5 = st.columns([1, 1, 1, 1, 2])
 
     rounds = sorted(df_all["round"].unique())
     round_filter = fc1.selectbox("Runde", ["Alle"] + [f"Runde {r}" for r in rounds])
@@ -47,7 +47,12 @@ def show():
     pages = sorted(df_all["page_id"].unique())
     page_filter = fc2.selectbox("Seite", ["Alle"] + pages)
 
-    status_filter = fc3.selectbox("Status", ["Alle", "Offen", "Erledigt"])
+    # Element filter
+    elements = sorted(df_all[df_all["element_id"].notna()]["element_id"].unique().tolist())
+    element_options = ["Alle", "Nur Seitenkommentare"] + elements
+    element_filter = fc3.selectbox("Element", element_options)
+
+    status_filter = fc4.selectbox("Status", ["Alle", "Offen", "Erledigt"])
 
     # Apply filters
     df = df_all.copy()
@@ -55,12 +60,16 @@ def show():
         df = df[df["round"] == int(round_filter.split(" ")[1])]
     if page_filter != "Alle":
         df = df[df["page_id"] == page_filter]
+    if element_filter == "Nur Seitenkommentare":
+        df = df[df["element_id"].isna()]
+    elif element_filter != "Alle":
+        df = df[df["element_id"] == element_filter]
     if status_filter == "Offen":
         df = df[df["status"] == "open"]
     elif status_filter == "Erledigt":
         df = df[df["status"] == "resolved"]
 
-    with fc4:
+    with fc5:
         st.write("")
         exp1, exp2 = st.columns(2)
         csv = df.to_csv(index=False).encode("utf-8")
@@ -85,6 +94,14 @@ def show():
         css_class = "feedback-item resolved" if is_resolved else "feedback-item"
         time_str = str(row["created_at"])[:16].replace("T", " ")
 
+        # Element badge
+        element_badge = ""
+        if row.get("element_id") and str(row["element_id"]) != "nan":
+            element_badge = f"""<span style="font-family:'JetBrains Mono',mono; font-size:10px; font-weight:600;
+                background:#06b6d412; color:#06b6d4; padding:2px 8px; border-radius:4px;">🔗 {row['element_id']}</span>"""
+        else:
+            element_badge = """<span style="font-size:10px; color:#9ca3af;">📄 Seite</span>"""
+
         st.markdown(f"""
         <div class="{css_class}">
             <div style="flex:1">
@@ -92,6 +109,7 @@ def show():
                     <span style="font-family:'JetBrains Mono',mono; font-size:11px; font-weight:600;
                         background:#2563eb12; color:#2563eb; padding:2px 8px; border-radius:4px;">Runde {row['round']}</span>
                     <span style="font-size:11px; color:#6b7280; background:#f0f2f5; padding:2px 8px; border-radius:4px;">📄 {row['page_id']}</span>
+                    {element_badge}
                     <span class="feedback-author">{row['author']}</span>
                     <span class="feedback-stars">{stars}</span>
                 </div>

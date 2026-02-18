@@ -19,7 +19,7 @@ export default function RegionalView({ round }) {
     <div>
       {/* ── Chart ─────────────────────────────────── */}
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
-        <Card title="TRx nach KV-Region" sub="Ist vs. Plan" flex={2}>
+        <Card title="TRx nach KV-Region" sub="Ist vs. Plan" flex={2} pageId="regional-view" elementId="region-chart" round={round}>
           <ResponsiveContainer width="100%" height={360}>
             <BarChart data={chartData} layout="vertical" margin={{ left: 100 }}>
               <CartesianGrid stroke={T.grid} strokeDasharray="3 3" />
@@ -33,7 +33,7 @@ export default function RegionalView({ round }) {
         </Card>
 
         {/* ── Table ───────────────────────────────── */}
-        <Card title="Detail-Tabelle" sub="Performance nach Region" flex={1}>
+        <Card title="Detail-Tabelle" sub="Performance nach Region" flex={1} pageId="regional-view" elementId="region-table" round={round}>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, fontFamily: sans }}>
               <thead>

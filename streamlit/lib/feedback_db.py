@@ -1,6 +1,6 @@
 """
 SQLite-based feedback persistence for the Streamlit variant.
-Auto-creates feedback.db on first run.
+Auto-creates feedback.db on first run. Supports element-level feedback.
 """
 import sqlite3
 from datetime import datetime
@@ -22,6 +22,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS feedback (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 page_id     TEXT NOT NULL,
+                element_id  TEXT,
                 round       INTEGER NOT NULL,
                 author      TEXT NOT NULL,
                 comment     TEXT NOT NULL,
@@ -30,24 +31,35 @@ def init_db():
                 created_at  TEXT NOT NULL
             )
         """)
+        # Migration: add element_id column if missing (existing DBs)
+        try:
+            conn.execute("SELECT element_id FROM feedback LIMIT 1")
+        except sqlite3.OperationalError:
+            conn.execute("ALTER TABLE feedback ADD COLUMN element_id TEXT")
 
 
-def add_feedback(page_id: str, round_num: int, author: str, comment: str, rating: int):
+def add_feedback(page_id: str, round_num: int, author: str, comment: str, rating: int, element_id: str = None):
     """Insert a new feedback entry."""
     with _conn() as conn:
         conn.execute(
-            "INSERT INTO feedback (page_id, round, author, comment, rating, status, created_at) VALUES (?,?,?,?,?,?,?)",
-            (page_id, round_num, author, comment, rating, "open", datetime.now().isoformat()),
+            "INSERT INTO feedback (page_id, element_id, round, author, comment, rating, status, created_at) VALUES (?,?,?,?,?,?,?,?)",
+            (page_id, element_id, round_num, author, comment, rating, "open", datetime.now().isoformat()),
         )
 
 
-def get_feedback(page_id: str = None, round_num: int = None, status: str = None) -> pd.DataFrame:
+def get_feedback(page_id: str = None, round_num: int = None, status: str = None, element_id: str = "__unset__") -> pd.DataFrame:
     """Retrieve feedback with optional filters, returns DataFrame."""
     query = "SELECT * FROM feedback WHERE 1=1"
     params = []
     if page_id:
         query += " AND page_id = ?"
         params.append(page_id)
+    if element_id != "__unset__":
+        if element_id is None:
+            query += " AND element_id IS NULL"
+        else:
+            query += " AND element_id = ?"
+            params.append(element_id)
     if round_num:
         query += " AND round = ?"
         params.append(round_num)
@@ -58,6 +70,16 @@ def get_feedback(page_id: str = None, round_num: int = None, status: str = None)
 
     with _conn() as conn:
         return pd.read_sql_query(query, conn, params=params)
+
+
+def get_element_count(page_id: str, element_id: str) -> int:
+    """Count feedback entries for a specific element."""
+    with _conn() as conn:
+        result = conn.execute(
+            "SELECT COUNT(*) FROM feedback WHERE page_id = ? AND element_id = ?",
+            (page_id, element_id),
+        ).fetchone()
+        return result[0] if result else 0
 
 
 def update_status(feedback_id: int, new_status: str):

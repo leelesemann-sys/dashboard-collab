@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 from lib.mock_data import df_monthly, df_competitors, short_month
 from lib.theme import ACCENT1, ACCENT2, FORXIGA, JARDIANCE, INVOKANA, TEXT_DIM, plotly_layout, render_kpis
-from lib.feedback_ui import feedback_section
+from lib.feedback_ui import section_with_feedback, close_section, feedback_section
 
 
 def show():
@@ -31,10 +31,7 @@ def show():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("""<div class="section-card">
-            <div class="section-title">NRx vs. RRx</div>
-            <div class="section-sub">Neue vs. wiederholte Verordnungen</div>
-        """, unsafe_allow_html=True)
+        section_with_feedback("market-uptake", "nrx-rrx-chart", "NRx vs. RRx", "Neue vs. wiederholte Verordnungen")
 
         fig = go.Figure()
         fig.add_trace(go.Bar(
@@ -47,13 +44,10 @@ def show():
         ))
         fig.update_layout(**plotly_layout(height=280, barmode="stack"))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        st.markdown("</div>", unsafe_allow_html=True)
+        close_section()
 
     with col2:
-        st.markdown("""<div class="section-card">
-            <div class="section-title">Marktanteile SGLT2i</div>
-            <div class="section-sub">Monatliche Entwicklung (%)</div>
-        """, unsafe_allow_html=True)
+        section_with_feedback("market-uptake", "market-share-chart", "Marktanteile SGLT2i", "Monatliche Entwicklung (%)")
 
         dfc = df_competitors.copy()
         dfc["month_label"] = dfc["month"].apply(short_month)
@@ -74,7 +68,7 @@ def show():
             height=280, yaxis=dict(range=[0, 100], gridcolor="#e5e7eb"),
         ))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        st.markdown("</div>", unsafe_allow_html=True)
+        close_section()
 
     # ── Feedback ──────────────────────────────────────────────
     feedback_section("market-uptake")

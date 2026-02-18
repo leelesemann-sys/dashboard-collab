@@ -1,6 +1,9 @@
 import { T, sans } from "../theme";
+import FeedbackBubble from "./FeedbackBubble";
 
-export default function Card({ children, title, sub, flex, style }) {
+export default function Card({ children, title, sub, flex, style, pageId, elementId, round }) {
+  const hasFeedback = pageId && elementId;
+
   return (
     <div
       style={{
@@ -12,12 +15,26 @@ export default function Card({ children, title, sub, flex, style }) {
         ...style,
       }}
     >
-      {title && (
-        <div style={{ fontWeight: 600, fontSize: 14, color: T.text, fontFamily: sans, marginBottom: 4 }}>
-          {title}
+      {(title || hasFeedback) && (
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <div style={{ flex: 1 }}>
+            {title && (
+              <div style={{ fontWeight: 600, fontSize: 14, color: T.text, fontFamily: sans, marginBottom: sub ? 0 : 4 }}>
+                {title}
+              </div>
+            )}
+            {sub && (
+              <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 12 }}>
+                {sub}
+              </div>
+            )}
+          </div>
+          {hasFeedback && (
+            <FeedbackBubble pageId={pageId} elementId={elementId} round={round} />
+          )}
         </div>
       )}
-      {sub && (
+      {!title && !hasFeedback && sub && (
         <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 12 }}>
           {sub}
         </div>

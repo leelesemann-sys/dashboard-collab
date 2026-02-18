@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 from lib.mock_data import df_monthly, kpis, short_month
 from lib.theme import ACCENT1, TEXT_DIM, GREEN, RED, plotly_layout, render_kpis
-from lib.feedback_ui import feedback_section
+from lib.feedback_ui import section_with_feedback, close_section, element_feedback, feedback_section
 
 
 def show():
@@ -40,10 +40,7 @@ def show():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("""<div class="section-card">
-            <div class="section-title">TRx Entwicklung</div>
-            <div class="section-sub">Ist vs. Plan — monatliche Verordnungen</div>
-        """, unsafe_allow_html=True)
+        section_with_feedback("exec-summary", "trx-chart", "TRx Entwicklung", "Ist vs. Plan — monatliche Verordnungen")
 
         fig = go.Figure()
         fig.add_trace(go.Scatter(
@@ -57,13 +54,10 @@ def show():
         ))
         fig.update_layout(**plotly_layout(height=280))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        st.markdown("</div>", unsafe_allow_html=True)
+        close_section()
 
     with col2:
-        st.markdown("""<div class="section-card">
-            <div class="section-title">Net Revenue</div>
-            <div class="section-sub">Monatlich Ist vs. Plan (€)</div>
-        """, unsafe_allow_html=True)
+        section_with_feedback("exec-summary", "revenue-chart", "Net Revenue", "Monatlich Ist vs. Plan (€)")
 
         fig = go.Figure()
         fig.add_trace(go.Bar(
@@ -76,7 +70,7 @@ def show():
         ))
         fig.update_layout(**plotly_layout(height=280, barmode="group"))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        st.markdown("</div>", unsafe_allow_html=True)
+        close_section()
 
     # ── Feedback ──────────────────────────────────────────────
     feedback_section("exec-summary")

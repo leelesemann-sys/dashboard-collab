@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { T, mono, sans } from "../theme";
-import { getFeedback, exportCSV, exportJSON, updateStatus } from "../feedbackStore";
+import { getFeedback, exportCSV, exportJSON, updateStatus, getAllElementIds } from "../feedbackStore";
 import KPI from "../components/KPI";
 import Card from "../components/Card";
 
 export default function FeedbackOverview() {
   const [filterRound, setFilterRound] = useState("");
   const [filterPage, setFilterPage] = useState("");
+  const [filterElement, setFilterElement] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [refresh, setRefresh] = useState(0);
 
@@ -15,10 +16,13 @@ export default function FeedbackOverview() {
   // Derive filter options
   const allRounds = [...new Set(feedback.map((f) => f.round))].sort();
   const allPages = [...new Set(feedback.map((f) => f.page_id))].sort();
+  const allElements = [...new Set(feedback.filter((f) => f.element_id).map((f) => f.element_id))].sort();
 
   // Apply filters
   if (filterRound) feedback = feedback.filter((f) => f.round === Number(filterRound));
   if (filterPage) feedback = feedback.filter((f) => f.page_id === filterPage);
+  if (filterElement === "__page__") feedback = feedback.filter((f) => !f.element_id);
+  else if (filterElement) feedback = feedback.filter((f) => f.element_id === filterElement);
   if (filterStatus) feedback = feedback.filter((f) => f.status === filterStatus);
 
   // Stats
@@ -83,6 +87,13 @@ export default function FeedbackOverview() {
               <option key={p} value={p}>{p}</option>
             ))}
           </select>
+          <select style={selectStyle} value={filterElement} onChange={(e) => setFilterElement(e.target.value)}>
+            <option value="">Alle Elemente</option>
+            <option value="__page__">Nur Seitenkommentare</option>
+            {allElements.map((e) => (
+              <option key={e} value={e}>{e}</option>
+            ))}
+          </select>
           <select style={selectStyle} value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
             <option value="">Alle Status</option>
             <option value="open">Offen</option>
@@ -105,7 +116,7 @@ export default function FeedbackOverview() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, fontFamily: sans }}>
               <thead>
                 <tr>
-                  {["Runde", "Seite", "Autor", "Kommentar", "Bewertung", "Status", "Datum"].map((h) => (
+                  {["Runde", "Seite", "Element", "Autor", "Kommentar", "Bewertung", "Status", "Datum"].map((h) => (
                     <th
                       key={h}
                       style={{
@@ -129,8 +140,20 @@ export default function FeedbackOverview() {
                   <tr key={f.id} style={{ borderBottom: `1px solid ${T.border}` }}>
                     <td style={{ padding: "8px", fontFamily: mono, fontWeight: 600 }}>{f.round}</td>
                     <td style={{ padding: "8px" }}>{f.page_id}</td>
+                    <td style={{ padding: "8px" }}>
+                      {f.element_id ? (
+                        <span style={{
+                          fontSize: 10, fontFamily: mono, background: T.accent1 + "12",
+                          color: T.accent1, padding: "2px 6px", borderRadius: 3, fontWeight: 600,
+                        }}>
+                          {f.element_id}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: 10, color: T.textDim }}>Seite</span>
+                      )}
+                    </td>
                     <td style={{ padding: "8px", fontWeight: 500 }}>{f.author}</td>
-                    <td style={{ padding: "8px", maxWidth: 320, color: T.text, lineHeight: 1.4 }}>{f.comment}</td>
+                    <td style={{ padding: "8px", maxWidth: 280, color: T.text, lineHeight: 1.4 }}>{f.comment}</td>
                     <td style={{ padding: "8px", color: T.yellow }}>
                       {"★".repeat(f.rating)}{"☆".repeat(5 - f.rating)}
                     </td>

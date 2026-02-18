@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 from lib.mock_data import df_regions
 from lib.theme import ACCENT1, TEXT_DIM, GREEN, YELLOW, RED, plotly_layout, render_kpis
-from lib.feedback_ui import feedback_section
+from lib.feedback_ui import section_with_feedback, close_section, feedback_section
 
 
 def show():
@@ -31,10 +31,7 @@ def show():
     col1, col2 = st.columns([3, 2])
 
     with col1:
-        st.markdown("""<div class="section-card">
-            <div class="section-title">TRx nach KV-Region</div>
-            <div class="section-sub">Ist vs. Plan — sortiert nach Volumen</div>
-        """, unsafe_allow_html=True)
+        section_with_feedback("regional-view", "region-chart", "TRx nach KV-Region", "Ist vs. Plan — sortiert nach Volumen")
 
         df_chart = df.sort_values("trx", ascending=True)
         fig = go.Figure()
@@ -51,13 +48,10 @@ def show():
             margin=dict(l=130, r=20, t=36, b=44),
         ))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        st.markdown("</div>", unsafe_allow_html=True)
+        close_section()
 
     with col2:
-        st.markdown("""<div class="section-card">
-            <div class="section-title">Detail-Tabelle</div>
-            <div class="section-sub">Performance nach Region</div>
-        """, unsafe_allow_html=True)
+        section_with_feedback("regional-view", "region-table", "Detail-Tabelle", "Performance nach Region")
 
         # Build styled HTML table
         rows_html = ""
@@ -91,7 +85,7 @@ def show():
             </table>
         </div>
         """, unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        close_section()
 
     # ── Feedback ──────────────────────────────────────────────
     feedback_section("regional-view")

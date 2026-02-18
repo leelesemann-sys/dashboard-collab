@@ -40,7 +40,7 @@ export default function MarketUptake({ round }) {
 
       {/* ── Charts ────────────────────────────────── */}
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
-        <Card title="NRx vs. RRx" sub="Neue vs. wiederholte Verordnungen" flex={1}>
+        <Card title="NRx vs. RRx" sub="Neue vs. wiederholte Verordnungen" flex={1} pageId="market-uptake" elementId="nrx-rrx-chart" round={round}>
           <ResponsiveContainer width="100%" height={260}>
             <ComposedChart data={uptakeData}>
               <CartesianGrid stroke={T.grid} strokeDasharray="3 3" />
@@ -54,7 +54,7 @@ export default function MarketUptake({ round }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Marktanteile SGLT2i" sub="Monatliche Entwicklung (%)" flex={1}>
+        <Card title="Marktanteile SGLT2i" sub="Monatliche Entwicklung (%)" flex={1} pageId="market-uptake" elementId="market-share-chart" round={round}>
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={compData}>
               <CartesianGrid stroke={T.grid} strokeDasharray="3 3" />

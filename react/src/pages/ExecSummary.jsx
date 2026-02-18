@@ -35,7 +35,7 @@ export default function ExecSummary({ round }) {
 
       {/* ── Charts ────────────────────────────────── */}
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
-        <Card title="TRx Entwicklung" sub="Ist vs. Plan" flex={1}>
+        <Card title="TRx Entwicklung" sub="Ist vs. Plan" flex={1} pageId="exec-summary" elementId="trx-chart" round={round}>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={chartData}>
               <CartesianGrid stroke={T.grid} strokeDasharray="3 3" />
@@ -48,7 +48,7 @@ export default function ExecSummary({ round }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Net Revenue" sub="Monatlich Ist vs. Plan (€)" flex={1}>
+        <Card title="Net Revenue" sub="Monatlich Ist vs. Plan (€)" flex={1} pageId="exec-summary" elementId="revenue-chart" round={round}>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={revenueData}>
               <CartesianGrid stroke={T.grid} strokeDasharray="3 3" />
