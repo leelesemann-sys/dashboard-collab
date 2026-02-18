@@ -93,7 +93,7 @@ with st.sidebar:
         """, unsafe_allow_html=True)
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
-    st.caption("Feedback in SQLite · Sichtbar für alle Nutzer")
+    st.caption("Feedback in Google Sheet · Sichtbar für alle Nutzer")
 
 # ── Page Navigation ───────────────────────────────────────────
 exec_page = st.Page(exec_show, title="Executive Summary", icon="📊", url_path="exec", default=True)
