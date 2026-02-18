@@ -24,3 +24,6 @@ Thumbs.db
 # Env
 .env
 .env.local
+
+# Streamlit secrets (contains service account keys!)
+streamlit/.streamlit/secrets.toml

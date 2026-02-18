@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { T, sans, mono } from "./theme";
-import { getMaxRound } from "./feedbackStore";
+import { getMaxRound, syncFromRemote } from "./feedbackStore";
 import RoundSelector from "./components/RoundSelector";
 import ExecSummary from "./pages/ExecSummary";
 import MarketUptake from "./pages/MarketUptake";
@@ -18,6 +18,13 @@ export default function App() {
   const [page, setPage] = useState("exec");
   const [currentRound, setCurrentRound] = useState(1);
   const [maxRound, setMaxRound] = useState(Math.max(1, getMaxRound()));
+
+  // Sync from Google Sheets on first load (if configured)
+  useEffect(() => {
+    syncFromRemote().then((synced) => {
+      if (synced) setMaxRound(Math.max(1, getMaxRound()));
+    });
+  }, []);
 
   const handleAddRound = () => {
     const next = maxRound + 1;
