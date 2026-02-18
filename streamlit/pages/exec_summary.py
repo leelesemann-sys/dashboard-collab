@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 from lib.mock_data import df_monthly, kpis, short_month
 from lib.theme import ACCENT1, TEXT_DIM, GREEN, RED, plotly_layout, render_kpis
-from lib.feedback_ui import section_with_feedback, close_section, element_feedback, feedback_section
+from lib.feedback_ui import section_with_feedback, feedback_section
 
 
 def show():
@@ -54,7 +54,6 @@ def show():
         ))
         fig.update_layout(**plotly_layout(height=280))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        close_section()
 
     with col2:
         section_with_feedback("exec-summary", "revenue-chart", "Net Revenue", "Monatlich Ist vs. Plan (€)")
@@ -70,7 +69,6 @@ def show():
         ))
         fig.update_layout(**plotly_layout(height=280, barmode="group"))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        close_section()
 
     # ── Feedback ──────────────────────────────────────────────
     feedback_section("exec-summary")

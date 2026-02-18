@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 from lib.mock_data import df_regions
 from lib.theme import ACCENT1, TEXT_DIM, GREEN, YELLOW, RED, plotly_layout, render_kpis
-from lib.feedback_ui import section_with_feedback, close_section, feedback_section
+from lib.feedback_ui import section_with_feedback, feedback_section
 
 
 def show():
@@ -48,7 +48,6 @@ def show():
             margin=dict(l=130, r=20, t=36, b=44),
         ))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        close_section()
 
     with col2:
         section_with_feedback("regional-view", "region-table", "Detail-Tabelle", "Performance nach Region")
@@ -85,7 +84,6 @@ def show():
             </table>
         </div>
         """, unsafe_allow_html=True)
-        close_section()
 
     # ── Feedback ──────────────────────────────────────────────
     feedback_section("regional-view")

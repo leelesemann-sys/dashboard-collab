@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 from lib.mock_data import df_monthly, df_competitors, short_month
 from lib.theme import ACCENT1, ACCENT2, FORXIGA, JARDIANCE, INVOKANA, TEXT_DIM, plotly_layout, render_kpis
-from lib.feedback_ui import section_with_feedback, close_section, feedback_section
+from lib.feedback_ui import section_with_feedback, feedback_section
 
 
 def show():
@@ -44,7 +44,6 @@ def show():
         ))
         fig.update_layout(**plotly_layout(height=280, barmode="stack"))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        close_section()
 
     with col2:
         section_with_feedback("market-uptake", "market-share-chart", "Marktanteile SGLT2i", "Monatliche Entwicklung (%)")
@@ -68,7 +67,6 @@ def show():
             height=280, yaxis=dict(range=[0, 100], gridcolor="#e5e7eb"),
         ))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-        close_section()
 
     # ── Feedback ──────────────────────────────────────────────
     feedback_section("market-uptake")

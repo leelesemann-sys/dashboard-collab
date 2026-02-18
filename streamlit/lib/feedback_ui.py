@@ -35,21 +35,22 @@ def element_feedback(page_id: str, element_id: str, label: str):
 
 
 def section_with_feedback(page_id: str, element_id: str, title: str, subtitle: str = ""):
-    """Render a section header row with title and element feedback bubble."""
+    """Render a section card header row with title + element feedback popover.
+
+    Returns nothing.  The section-card is opened as a complete HTML block
+    containing only the header.  The chart goes below (outside the card HTML)
+    and we visually fuse them with CSS margins.
+    """
+    # Header row: title on the left, feedback popover on the right
     col_title, col_fb = st.columns([6, 1])
     with col_title:
-        st.markdown(f"""<div class="section-card" style="margin-bottom:0; border-bottom:none; border-radius:10px 10px 0 0;">
+        sub_html = f"<div class='section-sub' style='margin-bottom:0'>{subtitle}</div>" if subtitle else ""
+        st.markdown(f"""<div class="section-card" style="margin-bottom:0; padding-bottom:8px;">
             <div class="section-title">{title}</div>
-            {"<div class='section-sub'>" + subtitle + "</div>" if subtitle else ""}
-        """, unsafe_allow_html=True)
+            {sub_html}
+        </div>""", unsafe_allow_html=True)
     with col_fb:
         element_feedback(page_id, element_id, title)
-    return col_title
-
-
-def close_section():
-    """Close a section card opened by section_with_feedback."""
-    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def feedback_section(page_id: str):
