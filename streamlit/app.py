@@ -13,31 +13,34 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Custom CSS (must be first) ────────────────────────────────
-from lib.theme import CUSTOM_CSS, ACCENT1
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
-
-# ── Page imports (reload to bust .pyc cache on Streamlit Cloud) ─
+# ── Reload all modules to bust .pyc cache on Streamlit Cloud ────
 import importlib
-import pages.exec_summary, pages.market_uptake, pages.regional_view, pages.feedback_overview
-import lib.feedback_ui, lib.feedback_db, lib.theme
+import lib.mock_data, lib.theme, lib.feedback_db, lib.feedback_ui
+importlib.reload(lib.mock_data)
 importlib.reload(lib.theme)
 importlib.reload(lib.feedback_db)
 importlib.reload(lib.feedback_ui)
+
+import pages.exec_summary, pages.market_uptake, pages.regional_view, pages.feedback_overview
 importlib.reload(pages.exec_summary)
 importlib.reload(pages.market_uptake)
 importlib.reload(pages.regional_view)
 importlib.reload(pages.feedback_overview)
+
+from lib.theme import CUSTOM_CSS
 from pages.exec_summary import show as exec_show
 from pages.market_uptake import show as uptake_show
 from pages.regional_view import show as regional_show
 from pages.feedback_overview import show as feedback_show
 
+# ── Custom CSS (after reload) ───────────────────────────────────
+st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
 # ── Sidebar ───────────────────────────────────────────────────
 from lib import feedback_db
 
 with st.sidebar:
-    st.markdown(f"""
+    st.markdown("""
     <div style="margin-bottom:8px">
         <div style="font-size:18px; font-weight:700; color:#1a202c; font-family:'DM Sans',sans-serif;">
             📋 Dashboard Prototyper
