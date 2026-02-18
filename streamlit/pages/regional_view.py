@@ -1,0 +1,98 @@
+"""Regional Performance — Horizontal bars + Detail table."""
+import streamlit as st
+import plotly.graph_objects as go
+import pandas as pd
+
+from lib.mock_data import df_regions
+from lib.theme import ACCENT1, TEXT_DIM, GREEN, YELLOW, RED, plotly_layout
+from lib import feedback_db
+
+
+def show():
+    st.header("🗺 Regionale Performance")
+
+    df = df_regions.sort_values("trx", ascending=True).copy()
+
+    # ── Chart + Table ─────────────────────────────────────────
+    col1, col2 = st.columns([2, 1])
+
+    with col1:
+        st.subheader("TRx nach KV-Region")
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            y=df["region"], x=df["trx"], name="Ist",
+            orientation="h", marker_color=ACCENT1, marker_cornerradius=4,
+        ))
+        fig.add_trace(go.Bar(
+            y=df["region"], x=df["trx_plan"], name="Plan",
+            orientation="h", marker_color=TEXT_DIM, opacity=0.3, marker_cornerradius=4,
+        ))
+        fig.update_layout(**plotly_layout(
+            height=400, barmode="group", xaxis_title="TRx", yaxis_title=None,
+            margin=dict(l=120, r=20, t=30, b=40),
+        ))
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        st.subheader("Detail-Tabelle")
+        table_df = df_regions.sort_values("trx", ascending=False).copy()
+        table_df["Erzielt %"] = (table_df["trx"] / table_df["trx_plan"] * 100).round(0).astype(int)
+        table_df["Net Revenue"] = table_df["net_revenue"].apply(lambda x: f"€{x:,.0f}")
+        table_df["MS %"] = table_df["market_share"]
+
+        # Color-code achievement
+        def color_ach(val):
+            if val >= 100:
+                return f"color: {GREEN}; font-weight: 700"
+            elif val >= 80:
+                return f"color: {YELLOW}; font-weight: 700"
+            else:
+                return f"color: {RED}; font-weight: 700"
+
+        display_df = table_df[["region", "trx", "trx_plan", "Erzielt %", "Net Revenue", "MS %"]].rename(columns={
+            "region": "Region", "trx": "TRx", "trx_plan": "Plan",
+        })
+
+        st.dataframe(
+            display_df.style.applymap(color_ach, subset=["Erzielt %"]),
+            hide_index=True,
+            use_container_width=True,
+            height=400,
+        )
+
+    # ── Feedback ──────────────────────────────────────────────
+    _feedback_section("regional-view")
+
+
+def _feedback_section(page_id: str):
+    """Reusable feedback form + history block."""
+    current_round = st.session_state.get("current_round", 1)
+
+    st.markdown("---")
+    st.subheader("💬 Feedback zu dieser Seite")
+
+    with st.form(f"feedback_{page_id}_r{current_round}", clear_on_submit=True):
+        fc1, fc2 = st.columns([3, 1])
+        author = fc1.text_input("Dein Name")
+        rating = fc2.slider("Bewertung", 1, 5, 3)
+        comment = st.text_area("Kommentar")
+        submitted = st.form_submit_button("📩 Absenden")
+        if submitted and author.strip() and comment.strip():
+            feedback_db.add_feedback(page_id, current_round, author.strip(), comment.strip(), rating)
+            st.rerun()
+
+    df_fb = feedback_db.get_feedback(page_id=page_id)
+    if not df_fb.empty:
+        st.caption(f"Bisheriges Feedback ({len(df_fb)})")
+        for _, row in df_fb.iterrows():
+            stars = "★" * int(row["rating"]) + "☆" * (5 - int(row["rating"]))
+            status_icon = "✅" if row["status"] == "resolved" else "🔲"
+            with st.container(border=True):
+                hc1, hc2, hc3, hc4 = st.columns([2, 4, 1, 1])
+                hc1.markdown(f"**{row['author']}**  \n`Runde {row['round']}`")
+                hc2.write(row["comment"])
+                hc3.write(stars)
+                if hc4.button(status_icon, key=f"toggle_{row['id']}"):
+                    new_status = "resolved" if row["status"] == "open" else "open"
+                    feedback_db.update_status(int(row["id"]), new_status)
+                    st.rerun()
