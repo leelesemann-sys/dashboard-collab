@@ -3,7 +3,7 @@ import streamlit as st
 import plotly.graph_objects as go
 
 from lib.mock_data import df_regions
-from lib.theme import ACCENT1, TEXT_DIM, GREEN, YELLOW, RED, plotly_layout, render_kpis
+from lib.theme import ACCENT1, ACCENT2, TEXT_DIM, GREEN, YELLOW, RED, plotly_layout, render_kpis
 from lib.feedback_ui import section_with_feedback, feedback_section
 
 
@@ -18,11 +18,15 @@ def show():
 
     # ── KPIs ──────────────────────────────────────────────────
     render_kpis(st.columns(4), [
-        {"label": "TRx Gesamt", "value": f"{total_trx:,}"},
-        {"label": "Plan Gesamt", "value": f"{total_plan:,}"},
+        {"label": "TRx Gesamt", "value": f"{total_trx:,}",
+         "sub": "alle KV-Regionen · kumuliert"},
+        {"label": "Plan Gesamt", "value": f"{total_plan:,}",
+         "sub": "alle KV-Regionen · kumuliert"},
         {"label": "Zielerreichung", "value": f"{ach_pct:.0f}%",
+         "sub": "Ist / Plan",
          "trend_color": GREEN if ach_pct >= 100 else YELLOW if ach_pct >= 80 else RED},
-        {"label": "Top-3 Konzentration", "value": f"{top3_share:.0f}%"},
+        {"label": "Top-3 Konzentration", "value": f"{top3_share:.0f}%",
+         "sub": "Anteil der 3 stärksten Regionen"},
     ])
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
@@ -34,18 +38,23 @@ def show():
         section_with_feedback("regional-view", "region-chart", "TRx nach KV-Region", "Ist vs. Plan — sortiert nach Volumen")
 
         df_chart = df.sort_values("trx", ascending=True)
+
         fig = go.Figure()
+        # Plan bars first (behind) — darker, clear benchmark style
+        fig.add_trace(go.Bar(
+            y=df_chart["region"], x=df_chart["trx_plan"], name="Plan",
+            orientation="h", marker_color="#374151", opacity=0.25,
+            marker_cornerradius=4,
+        ))
+        # Actual bars on top
         fig.add_trace(go.Bar(
             y=df_chart["region"], x=df_chart["trx"], name="Ist",
             orientation="h", marker_color=ACCENT1, marker_cornerradius=4,
         ))
-        fig.add_trace(go.Bar(
-            y=df_chart["region"], x=df_chart["trx_plan"], name="Plan",
-            orientation="h", marker_color=TEXT_DIM, opacity=0.3, marker_cornerradius=4,
-        ))
         fig.update_layout(**plotly_layout(
-            height=380, barmode="group",
-            margin=dict(l=130, r=20, t=36, b=44),
+            height=max(400, len(df_chart) * 30 + 80),
+            barmode="overlay",
+            margin=dict(l=160, r=20, t=36, b=44),
         ))
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
@@ -68,10 +77,10 @@ def show():
             </tr>"""
 
         st.markdown(f"""
-        <div style="overflow-x:auto; font-family:'DM Sans',sans-serif; font-size:13px;">
+        <div style="overflow-x:auto; font-family:'DM Sans',sans-serif; font-size:13px; max-height:500px; overflow-y:auto;">
             <table style="width:100%; border-collapse:collapse;">
                 <thead>
-                    <tr style="border-bottom:2px solid #e2e5ea;">
+                    <tr style="border-bottom:2px solid #e2e5ea; position:sticky; top:0; background:#ffffff;">
                         <th style="padding:8px 8px; text-align:left; font-size:10px; font-weight:700; text-transform:uppercase; color:#6b7280; font-family:'JetBrains Mono',mono; letter-spacing:0.5px">Region</th>
                         <th style="padding:8px 8px; text-align:right; font-size:10px; font-weight:700; text-transform:uppercase; color:#6b7280; font-family:'JetBrains Mono',mono">TRx</th>
                         <th style="padding:8px 8px; text-align:right; font-size:10px; font-weight:700; text-transform:uppercase; color:#6b7280; font-family:'JetBrains Mono',mono">Plan</th>

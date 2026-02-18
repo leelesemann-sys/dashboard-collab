@@ -1,4 +1,4 @@
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, ComposedChart } from "recharts";
 import { T, fmt, fmtE, dlt, sM } from "../theme";
 import { MONTHLY, KPIS } from "../data";
 import KPI from "../components/KPI";
@@ -10,11 +10,13 @@ export default function ExecSummary({ round }) {
   const data = MONTHLY;
   const last = data[data.length - 1];
 
-  // Chart data
+  // Chart data with corridor
   const chartData = data.map((d) => ({
     name: sM(d.month),
     TRx: d.trx,
     Plan: d.trx_plan,
+    Upper: d.trx_upper,
+    Lower: d.trx_lower,
   }));
 
   const revenueData = data.map((d) => ({
@@ -27,24 +29,26 @@ export default function ExecSummary({ round }) {
     <div>
       {/* ── KPIs ─────────────────────────────────── */}
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
-        <KPI label="Net Revenue kum." value={fmtE(KPIS.cumulative_net_revenue)} sub={"Ziel: €600k"} trend={dlt(KPIS.cumulative_net_revenue, 600000)} />
-        <KPI label="TRx kumuliert" value={fmt(KPIS.cumulative_trx)} sub={"Ziel: 8.500"} trend={dlt(KPIS.cumulative_trx, 8500)} />
-        <KPI label="Aktive Verordner" value={fmt(KPIS.active_prescribers)} sub={"Ziel: 70"} trend={dlt(KPIS.active_prescribers, 70)} />
-        <KPI label="Marktanteil" value={KPIS.market_share_latest + "%"} sub={"Ziel: 25%"} trend={dlt(KPIS.market_share_latest, 25)} />
+        <KPI label="Net Revenue kum." value={fmtE(KPIS.cumulative_net_revenue)} sub={"Ziel: €600k · kumuliert Mai–Dez"} trend={dlt(KPIS.cumulative_net_revenue, 600000)} />
+        <KPI label="TRx kumuliert" value={fmt(KPIS.cumulative_trx)} sub={"Ziel: 8.500 · kumuliert Mai–Dez"} trend={dlt(KPIS.cumulative_trx, 8500)} />
+        <KPI label="Aktive Verordner" value={fmt(KPIS.active_prescribers)} sub={"Ziel: 70 · aktueller Monat"} trend={dlt(KPIS.active_prescribers, 70)} />
+        <KPI label="Marktanteil" value={KPIS.market_share_latest + "%"} sub={"Ziel: 25% · aktueller Monat"} trend={dlt(KPIS.market_share_latest, 25)} />
       </div>
 
       {/* ── Charts ────────────────────────────────── */}
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
-        <Card title="TRx Entwicklung" sub="Ist vs. Plan" flex={1} pageId="exec-summary" elementId="trx-chart" round={round}>
+        <Card title="TRx Entwicklung" sub="Ist vs. Plan mit Forecast-Korridor" flex={1} pageId="exec-summary" elementId="trx-chart" round={round}>
           <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={chartData}>
+            <ComposedChart data={chartData}>
               <CartesianGrid stroke={T.grid} strokeDasharray="3 3" />
               <XAxis dataKey="name" tick={{ fill: T.textMuted, fontSize: 11 }} />
               <YAxis tick={{ fill: T.textMuted, fontSize: 11 }} />
               <Tooltip content={<Tip />} />
+              <Area type="monotone" dataKey="Upper" stroke="none" fill="none" legendType="none" />
+              <Area type="monotone" dataKey="Lower" stroke="none" fill={T.accent1 + "1A"} legendType="none" />
               <Line type="monotone" dataKey="TRx" stroke={T.accent1} strokeWidth={2.5} dot={{ r: 4 }} />
               <Line type="monotone" dataKey="Plan" stroke={T.textDim} strokeWidth={1.5} strokeDasharray="6 3" dot={false} />
-            </LineChart>
+            </ComposedChart>
           </ResponsiveContainer>
         </Card>
 

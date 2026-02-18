@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { T, fmt, fmtE, pct, mono, sans } from "../theme";
 import { REGIONS } from "../data";
+import KPI from "../components/KPI";
 import Card from "../components/Card";
 import Tip from "../components/Tip";
 import FeedbackPanel from "../components/FeedbackPanel";
@@ -8,6 +9,10 @@ import FeedbackPanel from "../components/FeedbackPanel";
 export default function RegionalView({ round }) {
   // Sort by TRx descending
   const sorted = [...REGIONS].sort((a, b) => b.trx - a.trx);
+  const totalTrx = sorted.reduce((s, r) => s + r.trx, 0);
+  const totalPlan = sorted.reduce((s, r) => s + r.trx_plan, 0);
+  const achPct = totalPlan ? ((totalTrx / totalPlan) * 100).toFixed(0) : 0;
+  const top3Share = totalTrx ? ((sorted.slice(0, 3).reduce((s, r) => s + r.trx, 0) / totalTrx) * 100).toFixed(0) : 0;
 
   const chartData = sorted.map((r) => ({
     name: r.region,
@@ -15,26 +20,36 @@ export default function RegionalView({ round }) {
     Plan: r.trx_plan,
   }));
 
+  const achColor = achPct >= 100 ? "green" : achPct >= 80 ? "yellow" : "red";
+
   return (
     <div>
-      {/* ── Chart ─────────────────────────────────── */}
+      {/* ── KPIs ─────────────────────────────────── */}
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
-        <Card title="TRx nach KV-Region" sub="Ist vs. Plan" flex={2} pageId="regional-view" elementId="region-chart" round={round}>
-          <ResponsiveContainer width="100%" height={360}>
-            <BarChart data={chartData} layout="vertical" margin={{ left: 100 }}>
+        <KPI label="TRx Gesamt" value={fmt(totalTrx)} sub="alle KV-Regionen · kumuliert" />
+        <KPI label="Plan Gesamt" value={fmt(totalPlan)} sub="alle KV-Regionen · kumuliert" />
+        <KPI label="Zielerreichung" value={achPct + "%"} sub="Ist / Plan" alert={achColor} />
+        <KPI label="Top-3 Konzentration" value={top3Share + "%"} sub="Anteil der 3 stärksten Regionen" />
+      </div>
+
+      {/* ── Chart + Table ────────────────────────── */}
+      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
+        <Card title="TRx nach KV-Region" sub="Ist vs. Plan — sortiert nach Volumen" flex={2} pageId="regional-view" elementId="region-chart" round={round}>
+          <ResponsiveContainer width="100%" height={Math.max(400, sorted.length * 30 + 80)}>
+            <BarChart data={chartData} layout="vertical" margin={{ left: 130 }}>
               <CartesianGrid stroke={T.grid} strokeDasharray="3 3" />
               <XAxis type="number" tick={{ fill: T.textMuted, fontSize: 11 }} />
-              <YAxis type="category" dataKey="name" tick={{ fill: T.text, fontSize: 12 }} width={95} />
+              <YAxis type="category" dataKey="name" tick={{ fill: T.text, fontSize: 11 }} width={125} />
               <Tooltip content={<Tip />} />
+              <Bar dataKey="Plan" fill="#374151" opacity={0.25} radius={[0, 4, 4, 0]} barSize={14} />
               <Bar dataKey="TRx" fill={T.accent1} radius={[0, 4, 4, 0]} barSize={14} />
-              <Bar dataKey="Plan" fill={T.textDim + "44"} radius={[0, 4, 4, 0]} barSize={14} />
             </BarChart>
           </ResponsiveContainer>
         </Card>
 
         {/* ── Table ───────────────────────────────── */}
         <Card title="Detail-Tabelle" sub="Performance nach Region" flex={1} pageId="regional-view" elementId="region-table" round={round}>
-          <div style={{ overflowX: "auto" }}>
+          <div style={{ overflowX: "auto", maxHeight: 500, overflowY: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, fontFamily: sans }}>
               <thead>
                 <tr>
@@ -50,6 +65,9 @@ export default function RegionalView({ round }) {
                         textTransform: "uppercase",
                         color: T.textMuted,
                         fontFamily: mono,
+                        position: "sticky",
+                        top: 0,
+                        background: T.surface,
                       }}
                     >
                       {h}

@@ -18,16 +18,16 @@ def show():
 
     render_kpis(st.columns(4), [
         {"label": "Net Revenue kum.", "value": f"€{kpis['cumulative_net_revenue']:,.0f}",
-         "sub": "Ziel: €600.000", "trend": f"{rev_delta:+.1f}%",
+         "sub": "Ziel: €600.000 · kumuliert Mai–Dez", "trend": f"{rev_delta:+.1f}%",
          "trend_color": GREEN if rev_delta >= 0 else RED},
         {"label": "TRx kumuliert", "value": f"{kpis['cumulative_trx']:,}",
-         "sub": "Ziel: 8.500", "trend": f"{trx_delta:+.1f}%",
+         "sub": "Ziel: 8.500 · kumuliert Mai–Dez", "trend": f"{trx_delta:+.1f}%",
          "trend_color": GREEN if trx_delta >= 0 else RED},
         {"label": "Aktive Verordner", "value": str(kpis["active_prescribers"]),
-         "sub": "Ziel: 70", "trend": f"{doc_delta:+.1f}%",
+         "sub": "Ziel: 70 · aktueller Monat", "trend": f"{doc_delta:+.1f}%",
          "trend_color": GREEN if doc_delta >= 0 else RED},
         {"label": "Marktanteil", "value": f"{kpis['market_share_latest']}%",
-         "sub": "Ziel: 25%", "trend": f"{ms_delta:+.1f}pp",
+         "sub": "Ziel: 25% · aktueller Monat", "trend": f"{ms_delta:+.1f}pp",
          "trend_color": GREEN if ms_delta >= 0 else RED},
     ])
 
@@ -43,11 +43,28 @@ def show():
         section_with_feedback("exec-summary", "trx-chart", "TRx Entwicklung", "Ist vs. Plan — monatliche Verordnungen")
 
         fig = go.Figure()
+
+        # Forecast corridor (upper/lower)
+        if "trx_upper" in df.columns and "trx_lower" in df.columns:
+            fig.add_trace(go.Scatter(
+                x=df["month_label"], y=df["trx_upper"],
+                mode="lines", line=dict(width=0), showlegend=False,
+                name="Upper", hoverinfo="skip",
+            ))
+            fig.add_trace(go.Scatter(
+                x=df["month_label"], y=df["trx_lower"],
+                mode="lines", line=dict(width=0), showlegend=True,
+                fill="tonexty", fillcolor="rgba(37,99,235,0.12)",
+                name="Korridor",
+            ))
+
+        # Actual line
         fig.add_trace(go.Scatter(
             x=df["month_label"], y=df["trx"], mode="lines+markers",
             name="Ist", line=dict(color=ACCENT1, width=2.5),
             marker=dict(size=7, color=ACCENT1),
         ))
+        # Plan line
         fig.add_trace(go.Scatter(
             x=df["month_label"], y=df["trx_plan"], mode="lines",
             name="Plan", line=dict(color=TEXT_DIM, width=1.5, dash="dash"),

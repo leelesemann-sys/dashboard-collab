@@ -1,13 +1,13 @@
 {
   "monthly": [
-    {"month": "2025-05", "product": "Cardiozan", "trx": 450, "trx_plan": 440, "nrx": 450, "rrx": 0, "net_revenue": 31617, "net_plan": 31310, "gross_revenue": 40275, "prescribers": 18},
-    {"month": "2025-06", "product": "Cardiozan", "trx": 386, "trx_plan": 398, "nrx": 310, "rrx": 76, "net_revenue": 27591, "net_plan": 28393, "gross_revenue": 34547, "prescribers": 24},
-    {"month": "2025-07", "product": "Cardiozan", "trx": 559, "trx_plan": 578, "nrx": 420, "rrx": 139, "net_revenue": 39605, "net_plan": 40992, "gross_revenue": 50030, "prescribers": 30},
-    {"month": "2025-08", "product": "Cardiozan", "trx": 763, "trx_plan": 811, "nrx": 510, "rrx": 253, "net_revenue": 54646, "net_plan": 57970, "gross_revenue": 68288, "prescribers": 36},
-    {"month": "2025-09", "product": "Cardiozan", "trx": 1097, "trx_plan": 1090, "nrx": 680, "rrx": 417, "net_revenue": 77975, "net_plan": 77630, "gross_revenue": 98182, "prescribers": 42},
-    {"month": "2025-10", "product": "Cardiozan", "trx": 1388, "trx_plan": 1400, "nrx": 790, "rrx": 598, "net_revenue": 99298, "net_plan": 99512, "gross_revenue": 124226, "prescribers": 48},
-    {"month": "2025-11", "product": "Cardiozan", "trx": 1654, "trx_plan": 1710, "nrx": 880, "rrx": 774, "net_revenue": 116475, "net_plan": 121000, "gross_revenue": 148033, "prescribers": 56},
-    {"month": "2025-12", "product": "Cardiozan", "trx": 1938, "trx_plan": 1994, "nrx": 950, "rrx": 988, "net_revenue": 138373, "net_plan": 141853, "gross_revenue": 173451, "prescribers": 65}
+    {"month": "2025-05", "product": "Cardiozan", "trx": 450, "trx_plan": 440, "trx_upper": 520, "trx_lower": 380, "nrx": 450, "rrx": 0, "net_revenue": 31617, "net_plan": 31310, "gross_revenue": 40275, "prescribers": 18},
+    {"month": "2025-06", "product": "Cardiozan", "trx": 386, "trx_plan": 398, "trx_upper": 475, "trx_lower": 330, "nrx": 310, "rrx": 76, "net_revenue": 27591, "net_plan": 28393, "gross_revenue": 34547, "prescribers": 24},
+    {"month": "2025-07", "product": "Cardiozan", "trx": 559, "trx_plan": 578, "trx_upper": 680, "trx_lower": 490, "nrx": 420, "rrx": 139, "net_revenue": 39605, "net_plan": 40992, "gross_revenue": 50030, "prescribers": 30},
+    {"month": "2025-08", "product": "Cardiozan", "trx": 763, "trx_plan": 811, "trx_upper": 960, "trx_lower": 680, "nrx": 510, "rrx": 253, "net_revenue": 54646, "net_plan": 57970, "gross_revenue": 68288, "prescribers": 36},
+    {"month": "2025-09", "product": "Cardiozan", "trx": 1097, "trx_plan": 1090, "trx_upper": 1290, "trx_lower": 920, "nrx": 680, "rrx": 417, "net_revenue": 77975, "net_plan": 77630, "gross_revenue": 98182, "prescribers": 42},
+    {"month": "2025-10", "product": "Cardiozan", "trx": 1388, "trx_plan": 1400, "trx_upper": 1650, "trx_lower": 1180, "nrx": 790, "rrx": 598, "net_revenue": 99298, "net_plan": 99512, "gross_revenue": 124226, "prescribers": 48},
+    {"month": "2025-11", "product": "Cardiozan", "trx": 1654, "trx_plan": 1710, "trx_upper": 2020, "trx_lower": 1440, "nrx": 880, "rrx": 774, "net_revenue": 116475, "net_plan": 121000, "gross_revenue": 148033, "prescribers": 56},
+    {"month": "2025-12", "product": "Cardiozan", "trx": 1938, "trx_plan": 1994, "trx_upper": 2360, "trx_lower": 1680, "nrx": 950, "rrx": 988, "net_revenue": 138373, "net_plan": 141853, "gross_revenue": 173451, "prescribers": 65}
   ],
   "regions": [
     {"region": "Bayern", "trx": 500, "trx_plan": 385, "net_revenue": 35570, "net_plan": 27389, "prescribers": 15, "market_share": 21.5},
@@ -19,7 +19,14 @@
     {"region": "Hessen", "trx": 149, "trx_plan": 185, "net_revenue": 10596, "net_plan": 13161, "prescribers": 6, "market_share": 12.4},
     {"region": "Sachsen", "trx": 82, "trx_plan": 170, "net_revenue": 5830, "net_plan": 12094, "prescribers": 4, "market_share": 9.9},
     {"region": "Hamburg", "trx": 67, "trx_plan": 55, "net_revenue": 4764, "net_plan": 3913, "prescribers": 4, "market_share": 17.9},
-    {"region": "Schleswig-Holstein", "trx": 43, "trx_plan": 88, "net_revenue": 3058, "net_plan": 6260, "prescribers": 4, "market_share": 8.2}
+    {"region": "Schleswig-Holstein", "trx": 43, "trx_plan": 88, "net_revenue": 3058, "net_plan": 6260, "prescribers": 4, "market_share": 8.2},
+    {"region": "Rheinland-Pfalz", "trx": 121, "trx_plan": 150, "net_revenue": 8603, "net_plan": 10669, "prescribers": 5, "market_share": 11.8},
+    {"region": "Th\u00fcringen", "trx": 58, "trx_plan": 95, "net_revenue": 4125, "net_plan": 6758, "prescribers": 3, "market_share": 8.7},
+    {"region": "Brandenburg", "trx": 72, "trx_plan": 110, "net_revenue": 5121, "net_plan": 7826, "prescribers": 3, "market_share": 9.4},
+    {"region": "Mecklenburg-Vorpommern", "trx": 38, "trx_plan": 65, "net_revenue": 2703, "net_plan": 4625, "prescribers": 2, "market_share": 7.5},
+    {"region": "Saarland", "trx": 31, "trx_plan": 45, "net_revenue": 2205, "net_plan": 3201, "prescribers": 2, "market_share": 10.1},
+    {"region": "Bremen", "trx": 24, "trx_plan": 30, "net_revenue": 1707, "net_plan": 2134, "prescribers": 1, "market_share": 13.2},
+    {"region": "Sachsen-Anhalt", "trx": 55, "trx_plan": 80, "net_revenue": 3912, "net_plan": 5692, "prescribers": 3, "market_share": 8.9}
   ],
   "competitors": [
     {"month": "2025-05", "forxiga": 42.7, "jardiance": 45.3, "invokana": 8.7, "cardiozan": 3.3},
