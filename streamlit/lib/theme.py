@@ -33,12 +33,14 @@ def kpi_card(label: str, value: str, sub: str = "", trend: str = "", trend_color
         tc = trend_color or TEXT_MUTED
         trend_html = f'<div class="kpi-trend" style="color:{tc}">{trend}</div>'
     sub_html = f'<div class="kpi-sub">{sub}</div>' if sub else ""
-    return f"""<div class="kpi-card">
-        <div class="kpi-label">{label}</div>
-        <div class="kpi-value">{value}</div>
-        {sub_html}
-        {trend_html}
-    </div>"""
+    return (
+        f'<div class="kpi-card">'
+        f'<div class="kpi-label">{label}</div>'
+        f'<div class="kpi-value">{value}</div>'
+        f'{sub_html}'
+        f'{trend_html}'
+        f'</div>'
+    )
 
 
 def render_kpis(cols, kpis_data):
@@ -119,7 +121,7 @@ CUSTOM_CSS = """
 <style>
     /* ── Global ──────────────────────────────────────── */
     .block-container {
-        padding-top: 1.2rem !important;
+        padding-top: 2.5rem !important;
         padding-bottom: 0.5rem !important;
         max-width: 1200px;
     }

@@ -18,10 +18,10 @@ def show():
 
     # ── KPIs ──────────────────────────────────────────────────
     render_kpis(st.columns(4), [
-        {"label": "NRx kumuliert", "value": f"{cum_nrx:,}"},
-        {"label": "RRx kumuliert", "value": f"{cum_rrx:,}"},
-        {"label": "Repeat-Rate", "value": f"{repeat_ratio:.1f}%"},
-        {"label": "Verordner aktuell", "value": str(int(last["prescribers"]))},
+        {"label": "NRx kumuliert", "value": f"{cum_nrx:,}", "sub": "kumuliert Mai–Dez"},
+        {"label": "RRx kumuliert", "value": f"{cum_rrx:,}", "sub": "kumuliert Mai–Dez"},
+        {"label": "Repeat-Rate", "value": f"{repeat_ratio:.1f}%", "sub": "RRx / (NRx+RRx)"},
+        {"label": "Verordner aktuell", "value": str(int(last["prescribers"])), "sub": "aktueller Monat"},
     ])
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
