@@ -1,98 +1,97 @@
 """Regional Performance — Horizontal bars + Detail table."""
 import streamlit as st
 import plotly.graph_objects as go
-import pandas as pd
 
 from lib.mock_data import df_regions
-from lib.theme import ACCENT1, TEXT_DIM, GREEN, YELLOW, RED, plotly_layout
-from lib import feedback_db
+from lib.theme import ACCENT1, TEXT_DIM, GREEN, YELLOW, RED, plotly_layout, render_kpis
+from lib.feedback_ui import feedback_section
 
 
 def show():
-    st.header("🗺 Regionale Performance")
+    st.markdown("## 🗺 Regionale Performance")
 
-    df = df_regions.sort_values("trx", ascending=True).copy()
+    df = df_regions.sort_values("trx", ascending=False).copy()
+    total_trx = int(df["trx"].sum())
+    total_plan = int(df["trx_plan"].sum())
+    ach_pct = total_trx / total_plan * 100 if total_plan else 0
+    top3_share = df.head(3)["trx"].sum() / total_trx * 100 if total_trx else 0
+
+    # ── KPIs ──────────────────────────────────────────────────
+    render_kpis(st.columns(4), [
+        {"label": "TRx Gesamt", "value": f"{total_trx:,}"},
+        {"label": "Plan Gesamt", "value": f"{total_plan:,}"},
+        {"label": "Zielerreichung", "value": f"{ach_pct:.0f}%",
+         "trend_color": GREEN if ach_pct >= 100 else YELLOW if ach_pct >= 80 else RED},
+        {"label": "Top-3 Konzentration", "value": f"{top3_share:.0f}%"},
+    ])
+
+    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
     # ── Chart + Table ─────────────────────────────────────────
-    col1, col2 = st.columns([2, 1])
+    col1, col2 = st.columns([3, 2])
 
     with col1:
-        st.subheader("TRx nach KV-Region")
+        st.markdown("""<div class="section-card">
+            <div class="section-title">TRx nach KV-Region</div>
+            <div class="section-sub">Ist vs. Plan — sortiert nach Volumen</div>
+        """, unsafe_allow_html=True)
+
+        df_chart = df.sort_values("trx", ascending=True)
         fig = go.Figure()
         fig.add_trace(go.Bar(
-            y=df["region"], x=df["trx"], name="Ist",
+            y=df_chart["region"], x=df_chart["trx"], name="Ist",
             orientation="h", marker_color=ACCENT1, marker_cornerradius=4,
         ))
         fig.add_trace(go.Bar(
-            y=df["region"], x=df["trx_plan"], name="Plan",
+            y=df_chart["region"], x=df_chart["trx_plan"], name="Plan",
             orientation="h", marker_color=TEXT_DIM, opacity=0.3, marker_cornerradius=4,
         ))
         fig.update_layout(**plotly_layout(
-            height=400, barmode="group", xaxis_title="TRx", yaxis_title=None,
-            margin=dict(l=120, r=20, t=30, b=40),
+            height=380, barmode="group",
+            margin=dict(l=130, r=20, t=36, b=44),
         ))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        st.subheader("Detail-Tabelle")
-        table_df = df_regions.sort_values("trx", ascending=False).copy()
-        table_df["Erzielt %"] = (table_df["trx"] / table_df["trx_plan"] * 100).round(0).astype(int)
-        table_df["Net Revenue"] = table_df["net_revenue"].apply(lambda x: f"€{x:,.0f}")
-        table_df["MS %"] = table_df["market_share"]
+        st.markdown("""<div class="section-card">
+            <div class="section-title">Detail-Tabelle</div>
+            <div class="section-sub">Performance nach Region</div>
+        """, unsafe_allow_html=True)
 
-        # Color-code achievement
-        def color_ach(val):
-            if val >= 100:
-                return f"color: {GREEN}; font-weight: 700"
-            elif val >= 80:
-                return f"color: {YELLOW}; font-weight: 700"
-            else:
-                return f"color: {RED}; font-weight: 700"
+        # Build styled HTML table
+        rows_html = ""
+        for _, r in df.iterrows():
+            ach = r["trx"] / r["trx_plan"] * 100 if r["trx_plan"] else 0
+            ach_color = GREEN if ach >= 100 else YELLOW if ach >= 80 else RED
+            net_fmt = f"€{r['net_revenue']:,.0f}"
+            rows_html += f"""<tr>
+                <td style="padding:6px 8px; font-weight:500">{r['region']}</td>
+                <td style="padding:6px 8px; text-align:right; font-family:'JetBrains Mono',mono; font-size:12px">{r['trx']:,.0f}</td>
+                <td style="padding:6px 8px; text-align:right; font-family:'JetBrains Mono',mono; font-size:12px; color:#6b7280">{r['trx_plan']:,.0f}</td>
+                <td style="padding:6px 8px; text-align:right; font-family:'JetBrains Mono',mono; font-size:12px; font-weight:700; color:{ach_color}">{ach:.0f}%</td>
+                <td style="padding:6px 8px; text-align:right; font-family:'JetBrains Mono',mono; font-size:12px">{net_fmt}</td>
+                <td style="padding:6px 8px; text-align:right; font-family:'JetBrains Mono',mono; font-size:12px">{r['market_share']}%</td>
+            </tr>"""
 
-        display_df = table_df[["region", "trx", "trx_plan", "Erzielt %", "Net Revenue", "MS %"]].rename(columns={
-            "region": "Region", "trx": "TRx", "trx_plan": "Plan",
-        })
-
-        st.dataframe(
-            display_df.style.applymap(color_ach, subset=["Erzielt %"]),
-            hide_index=True,
-            use_container_width=True,
-            height=400,
-        )
+        st.markdown(f"""
+        <div style="overflow-x:auto; font-family:'DM Sans',sans-serif; font-size:13px;">
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="border-bottom:2px solid #e2e5ea;">
+                        <th style="padding:8px 8px; text-align:left; font-size:10px; font-weight:700; text-transform:uppercase; color:#6b7280; font-family:'JetBrains Mono',mono; letter-spacing:0.5px">Region</th>
+                        <th style="padding:8px 8px; text-align:right; font-size:10px; font-weight:700; text-transform:uppercase; color:#6b7280; font-family:'JetBrains Mono',mono">TRx</th>
+                        <th style="padding:8px 8px; text-align:right; font-size:10px; font-weight:700; text-transform:uppercase; color:#6b7280; font-family:'JetBrains Mono',mono">Plan</th>
+                        <th style="padding:8px 8px; text-align:right; font-size:10px; font-weight:700; text-transform:uppercase; color:#6b7280; font-family:'JetBrains Mono',mono">Erzielt</th>
+                        <th style="padding:8px 8px; text-align:right; font-size:10px; font-weight:700; text-transform:uppercase; color:#6b7280; font-family:'JetBrains Mono',mono">Net Rev</th>
+                        <th style="padding:8px 8px; text-align:right; font-size:10px; font-weight:700; text-transform:uppercase; color:#6b7280; font-family:'JetBrains Mono',mono">MS</th>
+                    </tr>
+                </thead>
+                <tbody>{rows_html}</tbody>
+            </table>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # ── Feedback ──────────────────────────────────────────────
-    _feedback_section("regional-view")
-
-
-def _feedback_section(page_id: str):
-    """Reusable feedback form + history block."""
-    current_round = st.session_state.get("current_round", 1)
-
-    st.markdown("---")
-    st.subheader("💬 Feedback zu dieser Seite")
-
-    with st.form(f"feedback_{page_id}_r{current_round}", clear_on_submit=True):
-        fc1, fc2 = st.columns([3, 1])
-        author = fc1.text_input("Dein Name")
-        rating = fc2.slider("Bewertung", 1, 5, 3)
-        comment = st.text_area("Kommentar")
-        submitted = st.form_submit_button("📩 Absenden")
-        if submitted and author.strip() and comment.strip():
-            feedback_db.add_feedback(page_id, current_round, author.strip(), comment.strip(), rating)
-            st.rerun()
-
-    df_fb = feedback_db.get_feedback(page_id=page_id)
-    if not df_fb.empty:
-        st.caption(f"Bisheriges Feedback ({len(df_fb)})")
-        for _, row in df_fb.iterrows():
-            stars = "★" * int(row["rating"]) + "☆" * (5 - int(row["rating"]))
-            status_icon = "✅" if row["status"] == "resolved" else "🔲"
-            with st.container(border=True):
-                hc1, hc2, hc3, hc4 = st.columns([2, 4, 1, 1])
-                hc1.markdown(f"**{row['author']}**  \n`Runde {row['round']}`")
-                hc2.write(row["comment"])
-                hc3.write(stars)
-                if hc4.button(status_icon, key=f"toggle_{row['id']}"):
-                    new_status = "resolved" if row["status"] == "open" else "open"
-                    feedback_db.update_status(int(row["id"]), new_status)
-                    st.rerun()
+    feedback_section("regional-view")
